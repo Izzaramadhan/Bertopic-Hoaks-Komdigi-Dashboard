@@ -1,0 +1,7 @@
+-r requirements.txt
+bertopic
+sentence-transformers
+umap-learn
+hdbscan
+scikit-learn
+safetensors
