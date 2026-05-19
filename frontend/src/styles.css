@@ -1,1 +1,63 @@
 @import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    overflow-x: hidden;
+    background: #f8fafc;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::selection {
+    background: #2563eb;
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  .section-container {
+    @apply mx-auto max-w-[1440px] px-6;
+  }
+
+  .section-spacing {
+    @apply scroll-mt-24 py-8;
+  }
+
+  .glass-navbar {
+    @apply border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl;
+  }
+
+  .card-soft {
+    @apply rounded-3xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .badge-blue {
+    @apply rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-700;
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-extrabold text-slate-900 shadow-lg shadow-slate-950/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-blue-50 hover:shadow-xl active:scale-95;
+  }
+
+  .button-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-slate-950/10 backdrop-blur transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-200/50 hover:bg-white/20 hover:shadow-xl active:scale-95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

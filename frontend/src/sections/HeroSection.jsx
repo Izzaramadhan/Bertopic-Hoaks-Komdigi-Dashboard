@@ -8,17 +8,37 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { formatNumber } from "../utils/format";
+import Background from "../assets/Background.png";
 
 export default function HeroSection({ summary, topTopic }) {
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+
+    if (section) {
+      section.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   return (
     <section
       id="home"
       className="mx-auto max-w-[1440px] scroll-mt-24 px-6 py-10"
     >
       <div className="grid gap-6 lg:grid-cols-[1.55fr_0.75fr]">
-        <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-900 p-8 text-white shadow-xl sm:p-10 lg:p-12">
-          <div className="absolute -right-28 -top-28 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-          <div className="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[2.25rem] p-8 text-white shadow-xl sm:p-10 lg:p-12">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${Background})`,
+            }}
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-blue-950/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" />
+          <div className="absolute -left-20 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl" />
 
           <div className="relative z-10">
             <div className="mb-6 flex flex-wrap gap-3">
@@ -44,27 +64,35 @@ export default function HeroSection({ summary, topTopic }) {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#overview"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-extrabold text-slate-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"
+              <button
+                type="button"
+                onClick={() => scrollToSection("overview")}
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-extrabold text-slate-900 shadow-lg shadow-slate-950/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-blue-50 hover:shadow-xl active:scale-95"
               >
                 Lihat Ringkasan
-                <ArrowRight size={17} />
-              </a>
+                <ArrowRight
+                  size={18}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </button>
 
-              <a
-                href="#articles"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-3 text-sm font-extrabold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
+              <button
+                type="button"
+                onClick={() => scrollToSection("articles")}
+                className="group inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-slate-950/10 backdrop-blur transition-all duration-300 ease-out hover:-translate-y-1 hover:border-cyan-200/50 hover:bg-white/20 hover:shadow-xl active:scale-95"
               >
                 Eksplorasi Artikel
-                <Database size={17} />
-              </a>
+                <Database
+                  size={18}
+                  className="transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110"
+                />
+              </button>
             </div>
           </div>
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
                 <CalendarDays size={21} />
@@ -74,6 +102,7 @@ export default function HeroSection({ summary, topTopic }) {
                 <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">
                   Periode Data
                 </p>
+
                 <h3 className="mt-1 text-base font-extrabold text-slate-900">
                   {summary?.date_min || "-"} — {summary?.date_max || "-"}
                 </h3>
@@ -81,7 +110,7 @@ export default function HeroSection({ summary, topTopic }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
                 <div className="mb-2 flex items-center gap-2 text-blue-700">
                   <Database size={17} />
                   <span className="text-xs font-extrabold uppercase tracking-wider">
@@ -94,7 +123,7 @@ export default function HeroSection({ summary, topTopic }) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4">
                 <div className="mb-2 flex items-center gap-2 text-teal-700">
                   <Layers3 size={17} />
                   <span className="text-xs font-extrabold uppercase tracking-wider">
@@ -109,7 +138,7 @@ export default function HeroSection({ summary, topTopic }) {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
                 <BarChart3 size={21} />
@@ -119,6 +148,7 @@ export default function HeroSection({ summary, topTopic }) {
                 <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">
                   Topik Dominan
                 </p>
+
                 <h3 className="mt-1 text-base font-extrabold leading-6 text-slate-900">
                   {topTopic?.topic_name || "-"}
                 </h3>
