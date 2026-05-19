@@ -23,20 +23,31 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Saat frontend React dan backend FastAPI berjalan di origin berbeda,
-# CORS perlu diaktifkan agar browser mengizinkan request API.
+# CORS untuk mengizinkan frontend lokal dan frontend deployment mengakses API.
+# Untuk tahap awal deployment, allow_origins=["*"] dibuat agar tidak error CORS.
+# Setelah frontend Vercel sudah punya URL final, ini bisa dibuat lebih spesifik.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "BERTopic Hoaks Komdigi API is running",
+        "docs": "/docs",
+        "health": "/api/health",
+        "summary": "/api/summary",
+        "filters": "/api/filters",
+        "yearly_trend": "/api/trends/yearly",
+        "monthly_trend": "/api/trends/monthly",
+        "top_topics": "/api/topics/top",
+        "articles": "/api/articles",
+    }
 
 
 class PredictRequest(BaseModel):
@@ -100,7 +111,10 @@ def load_topic_info() -> pd.DataFrame:
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "message": "BERTopic Hoaks API is running"}
+    return {
+        "status": "ok",
+        "message": "BERTopic Hoaks Komdigi API is running",
+    }
 
 
 @app.get("/api/summary")
@@ -112,7 +126,9 @@ def summary():
     return {
         "source": source,
         "total_articles": int(len(df)),
-        "total_topics": int(df["topic"].nunique(dropna=True)) if "topic" in df.columns else 0,
+        "total_topics": int(df["topic"].nunique(dropna=True))
+        if "topic" in df.columns
+        else 0,
         "date_min": date_min.strftime("%Y-%m-%d") if pd.notna(date_min) else None,
         "date_max": date_max.strftime("%Y-%m-%d") if pd.notna(date_max) else None,
         "outliers": int((df["topic"] == -1).sum()) if "topic" in df.columns else 0,
@@ -123,7 +139,9 @@ def summary():
 @app.get("/api/filters")
 def filters():
     df, _ = load_dataset()
+
     years = sorted([int(x) for x in df["year"].dropna().unique()])
+
     topics = (
         df[["topic", "topic_name"]]
         .drop_duplicates()
@@ -131,12 +149,17 @@ def filters():
         .sort_values("topic_name")
         .to_dict(orient="records")
     )
-    return {"years": years, "topics": topics}
+
+    return {
+        "years": years,
+        "topics": topics,
+    }
 
 
 @app.get("/api/trends/yearly")
 def yearly_trend():
     df, _ = load_dataset()
+
     result = (
         df.dropna(subset=["year"])
         .groupby("year")
@@ -144,13 +167,16 @@ def yearly_trend():
         .reset_index(name="count")
         .sort_values("year")
     )
+
     result["year"] = result["year"].astype(int)
+
     return result.to_dict(orient="records")
 
 
 @app.get("/api/trends/monthly")
 def monthly_trend():
     df, _ = load_dataset()
+
     result = (
         df.dropna(subset=["year_month"])
         .groupby("year_month")
@@ -158,12 +184,14 @@ def monthly_trend():
         .reset_index(name="count")
         .sort_values("year_month")
     )
+
     return result.to_dict(orient="records")
 
 
 @app.get("/api/topics/top")
 def top_topics(limit: int = Query(20, ge=1, le=100)):
     df, _ = load_dataset()
+
     result = (
         df.groupby(["topic", "topic_name"], dropna=False)
         .size()
@@ -174,7 +202,7 @@ def top_topics(limit: int = Query(20, ge=1, le=100)):
 
     return [
         {
-            "topic": _safe_int(row["topic"]) if row["topic"] is not None else None,
+            "topic": _safe_int(row["topic"]),
             "topic_name": _safe_str(row["topic_name"]),
             "count": int(row["count"]),
         }
@@ -203,15 +231,19 @@ def topic_yearly(limit: int = Query(8, ge=1, le=30)):
         .reset_index(name="count")
         .sort_values(["year", "topic_name"])
     )
+
     result["year"] = result["year"].astype(int)
+
     return result.to_dict(orient="records")
 
 
 @app.get("/api/topic-info")
 def topic_info():
     info = load_topic_info()
+
     if info.empty:
         return []
+
     return info.fillna("").to_dict(orient="records")
 
 
@@ -233,30 +265,54 @@ def articles(
         filtered = filtered[filtered["topic_name"].astype(str) == topic_name]
 
     if q:
-        text_cols = [col for col in ["title", "body_text", "clean_text", "topic_name"] if col in filtered.columns]
+        text_cols = [
+            col
+            for col in ["title", "body_text", "clean_text", "topic_name"]
+            if col in filtered.columns
+        ]
+
         mask = pd.Series(False, index=filtered.index)
+
         for col in text_cols:
-            mask = mask | filtered[col].astype(str).str.contains(q, case=False, na=False)
+            mask = mask | filtered[col].astype(str).str.contains(
+                q,
+                case=False,
+                na=False,
+            )
+
         filtered = filtered[mask]
 
-    filtered = filtered.sort_values("published_at", ascending=False, na_position="last")
+    filtered = filtered.sort_values(
+        "published_at",
+        ascending=False,
+        na_position="last",
+    )
+
     total = len(filtered)
     page = filtered.iloc[offset : offset + limit]
 
     records = []
+
     for _, row in page.iterrows():
         records.append(
             {
                 "title": _safe_str(row.get("title")),
-                "published_at": row["published_at"].strftime("%Y-%m-%d") if pd.notna(row.get("published_at")) else None,
+                "published_at": row["published_at"].strftime("%Y-%m-%d")
+                if pd.notna(row.get("published_at"))
+                else None,
                 "year": _safe_int(row.get("year")),
-                "topic": _safe_int(row.get("topic")) if row.get("topic") is not None else None,
+                "topic": _safe_int(row.get("topic")),
                 "topic_name": _safe_str(row.get("topic_name")),
                 "url": _safe_str(row.get("url")),
             }
         )
 
-    return {"total": total, "limit": limit, "offset": offset, "data": records}
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "data": records,
+    }
 
 
 # ============================================================
