@@ -1,0 +1,23 @@
+# Node / React
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# Python
+.venv/
+backend/.venv/
+__pycache__/
+backend/__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
